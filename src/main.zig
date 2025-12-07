@@ -65,6 +65,47 @@ pub fn main() !void {
                 books[cur_index] = .{ .title = name, .description = description };
                 cur_index += 1;
             },
+            '2' => {
+                try stdout.writeAll("Enter the title of the book you want to change: ");
+                try stdout.flush();
+
+                const name_optional = try stdin.takeDelimiter('\n');
+                const name = try allocator.dupe(u8, name_optional orelse return);
+
+                var idx_optional: ?u16 = null;
+                var i: u16 = 0;
+                while (i < cur_index) {
+                    if (std.mem.eql(u8, books[i].title, name)) {
+                        idx_optional = i;
+                    }
+                    i += 1;
+                }
+
+                const idx = idx_optional orelse return;
+
+                try stdout.writeAll("Choose which one do you want to update: \n");
+                try stdout.writeAll("1. title\n");
+                try stdout.writeAll("2. description\n");
+                try stdout.writeAll("Enter option: ");
+                try stdout.flush();
+
+                const type_optional = try stdin.takeDelimiter('\n');
+                const option = type_optional orelse break;
+
+                if (option[0] == '1') {
+                    const title_optional = try stdin.takeDelimiter('\n');
+                    const title = try allocator.dupe(u8, title_optional orelse return);
+
+                    allocator.free(books[idx].title);
+                    books[idx].title = title;
+                } else {
+                    const title_optional = try stdin.takeDelimiter('\n');
+                    const title = try allocator.dupe(u8, title_optional orelse return);
+
+                    allocator.free(books[idx].description);
+                    books[idx].description = title;
+                }
+            },
             else => {
                 try stdout.writeAll("That action doesn't exist!\n");
                 try stdout.flush();

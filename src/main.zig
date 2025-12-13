@@ -6,6 +6,8 @@ var stdin_reader = std.fs.File.stdin().reader(&stdin_buffer);
 const stdin = &stdin_reader.interface;
 const stdout = &stdout_writer.interface;
 
+const cwd = std.fs.cwd();
+
 const Book = struct {
     title: []u8,
     description: []u8,
@@ -141,6 +143,22 @@ pub fn main() !void {
 
                 try stdout.writeAll("Book deleted!.\n");
                 try stdout.flush();
+            },
+            '4' => {
+                var file_reader = try cwd.openFile("test.txt", .{ .mode = .read_only });
+                defer file_reader.close();
+
+                var buf_file: [1024]u8 = undefined;
+                const len = try file_reader.read(&buf_file);
+
+                try stdout.print("{d}\n", .{len});
+                {
+                    var idx: u16 = 0;
+                    while (idx < len) {
+                        try stdout.print("{d}\n", .{buf_file[idx]});
+                        idx += 1;
+                    }
+                }
             },
             else => {
                 try stdout.writeAll("That action doesn't exist!\n");

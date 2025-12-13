@@ -99,12 +99,44 @@ pub fn main() !void {
                     allocator.free(books[idx].title);
                     books[idx].title = title;
                 } else {
-                    const title_optional = try stdin.takeDelimiter('\n');
-                    const title = try allocator.dupe(u8, title_optional orelse return);
+                    const description_optional = try stdin.takeDelimiter('\n');
+                    const description = try allocator.dupe(u8, description_optional orelse return);
 
                     allocator.free(books[idx].description);
-                    books[idx].description = title;
+                    books[idx].description = description;
                 }
+            },
+            '3' => {
+                try stdout.writeAll("Enter the title of the book you want to delete: ");
+                try stdout.flush();
+
+                const name_optional = try stdin.takeDelimiter('\n');
+                const name = try allocator.dupe(u8, name_optional orelse return);
+
+                var idx_optional: ?u16 = null;
+                var i: u16 = 0;
+                while (i < cur_index) {
+                    if (std.mem.eql(u8, books[i].title, name)) {
+                        idx_optional = i;
+                    }
+                    i += 1;
+                }
+
+                const idx = idx_optional orelse return;
+                allocator.free(books[idx].title);
+                allocator.free(books[idx].description);
+
+                var idx_temp: u16 = idx;
+                while (idx_temp + 1 < cur_index) {
+                    books[idx_temp].title = books[idx_temp + 1].title;
+                    books[idx_temp].description = books[idx_temp + 1].description;
+                    idx_temp += 1;
+                }
+
+                cur_index -= 1;
+
+                try stdout.writeAll("Book deleted!.\n");
+                try stdout.flush();
             },
             else => {
                 try stdout.writeAll("That action doesn't exist!\n");

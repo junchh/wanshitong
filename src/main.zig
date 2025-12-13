@@ -93,12 +93,16 @@ pub fn main() !void {
                 const option = type_optional orelse break;
 
                 if (option[0] == '1') {
+                    try stdout.writeAll("Enter new title: ");
+                    try stdout.flush();
                     const title_optional = try stdin.takeDelimiter('\n');
                     const title = try allocator.dupe(u8, title_optional orelse return);
 
                     allocator.free(books[idx].title);
                     books[idx].title = title;
                 } else {
+                    try stdout.writeAll("Enter new description: ");
+                    try stdout.flush();
                     const description_optional = try stdin.takeDelimiter('\n');
                     const description = try allocator.dupe(u8, description_optional orelse return);
 

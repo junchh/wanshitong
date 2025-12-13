@@ -36,7 +36,8 @@ pub fn main() !void {
     try stdout.writeAll("\n");
     try stdout.flush();
 
-    const books = try allocator.alloc(Book, 16);
+    var cur_max: u16 = 16;
+    var books = try allocator.alloc(Book, cur_max);
     var cur_index: u16 = 0;
 
     while (true) {
@@ -63,6 +64,13 @@ pub fn main() !void {
 
                 const description_optional = try stdin.takeDelimiter('\n');
                 const description = try allocator.dupe(u8, description_optional orelse return);
+
+                if (cur_index == cur_max) {
+                    try stdout.writeAll("Full!!!\n");
+                    try stdout.flush();
+                    cur_max *= 2;
+                    books = try allocator.realloc(books, cur_max);
+                }
 
                 books[cur_index] = .{ .title = name, .description = description };
                 cur_index += 1;

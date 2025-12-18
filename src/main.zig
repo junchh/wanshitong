@@ -98,6 +98,7 @@ pub fn main() !void {
                 }
 
                 books[cur_index] = .{ .title = name, .description = description };
+
                 cur_index += 1;
             },
             '2' => {

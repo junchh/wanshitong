@@ -36,9 +36,34 @@ pub fn main() !void {
     try stdout.writeAll("\n");
     try stdout.flush();
 
-    var cur_max: u16 = 16;
-    var books = try allocator.alloc(Book, cur_max);
-    var cur_index: u16 = 0;
+    const file_reader = try cwd.readFileAlloc(allocator, "database", 10 * 1024 * 1024);
+
+    var cur_max: u32 = 16;
+    var cur_index: u32 = 0;
+    var books_optional: ?[]Book = undefined;
+    if (file_reader.len == 0) {
+        books_optional = try allocator.alloc(Book, cur_max);
+    } else {
+        const normalized_len: u32 = @truncate(file_reader.len);
+        cur_index = normalized_len;
+        cur_max *= cur_index;
+        books_optional = try allocator.alloc(Book, cur_max);
+        var i: u32 = 0;
+        while (i < cur_index) {
+            var buf_title = [_]u8{0} ** 128;
+            var buf_description = [_]u8{0} ** 256;
+            while (i % 384 != 128) {
+                buf_title[i % 384] = file_reader.ptr[i];
+                i += 1;
+            }
+            while (i % 384 != 0) {
+                buf_description[(i % 384) - 128] = file_reader.ptr[i];
+                i += 1;
+            }
+        }
+    }
+
+    var books = books_optional orelse return;
 
     while (true) {
         try stdout.writeAll("Pick your action: ");
@@ -153,20 +178,20 @@ pub fn main() !void {
                 try stdout.flush();
             },
             '4' => {
-                var file_reader = try cwd.openFile("test.txt", .{ .mode = .read_only });
-                defer file_reader.close();
-
-                var buf_file: [1024]u8 = undefined;
-                const len = try file_reader.read(&buf_file);
-
-                try stdout.print("{d}\n", .{len});
-                {
-                    var idx: u16 = 0;
-                    while (idx < len) {
-                        try stdout.print("{d}\n", .{buf_file[idx]});
-                        idx += 1;
-                    }
-                }
+                // var file_reader = try cwd.openFile("test.txt", .{ .mode = .read_only });
+                // defer file_reader.close();
+                //
+                // var buf_file: [1024]u8 = undefined;
+                // const len = try file_reader.read(&buf_file);
+                //
+                // try stdout.print("{d}\n", .{len});
+                // {
+                //     var idx: u16 = 0;
+                //     while (idx < len) {
+                //         try stdout.print("{d}\n", .{buf_file[idx]});
+                //         idx += 1;
+                //     }
+                // }
             },
             else => {
                 try stdout.writeAll("That action doesn't exist!\n");

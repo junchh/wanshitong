@@ -310,16 +310,18 @@ pub fn main() !void {
             }
         }
 
-        // {
-        //     var i: u16 = 0;
-        //     while (i < cur_index) {
-        //         allocator.free(books[i].title);
-        //         allocator.free(books[i].description);
-        //         i += 1;
-        //     }
-        //
-        //     allocator.free(books);
-        // }
+        // Free Memory here
+        allocator.free(selected_db_string);
+        {
+            var i: u16 = 0;
+            while (i < cur_index) {
+                allocator.free(books[i].title);
+                allocator.free(books[i].description);
+                i += 1;
+            }
+
+            allocator.free(books);
+        }
     }
 
     try stdout.writeAll("Thank you for using Wanshitong!.\n");

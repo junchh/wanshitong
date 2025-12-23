@@ -86,7 +86,7 @@ pub fn main() !void {
 
         const file_reader = file_reader_temp orelse break;
         const file_writer = file_writer_temp orelse break;
-        const selected_db_string = db_optional orelse break;
+        const selected_db_string = try allocator.dupe(u8, db_optional orelse return);
 
         const book_file_read = try file_reader.file.readToEndAlloc(allocator, 10 * 1024 * 1024);
 
